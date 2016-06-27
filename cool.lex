@@ -51,12 +51,14 @@ class Utility {
     StringBuffer string_buf = new StringBuffer();
 
 	private int commentCount = 0;
-	private int CurrentSymbolEntryIndex = 0;
     private int curr_lineno = 1;
     int get_curr_lineno() {
 	return curr_lineno;
     }
 
+	public void set_curr_lineno(int num) {
+		curr_lineno = num;
+	}
     private AbstractSymbol filename;
 
     void set_filename(String fname) {
@@ -99,9 +101,10 @@ class Utility {
     return new Symbol(TokenConstants.EOF);
 %eofval}
 
+%line
 %class CoolLexer
 %cup
-%state COMMENT, YYSTRING
+%state ONELINECOMMENT, COMMENT, YYSTRING
 LineItem = \r|\n|\r\n
 InputItem = [^\n\r]
 Alpha = [A-Za-z]
@@ -117,6 +120,15 @@ Bool = "false" | "true"
 <YYINITIAL> "(*" {
 	yybegin(COMMENT);
 	commentCount = commentCount + 1;
+}
+<YYINITIAL> "--" {
+	yybegin(ONELINECOMMENT);
+}
+<ONELINECOMMENT> {InputItem} {
+	/*skip*/
+}
+<ONELINECOMMENT> {LineItem} {
+	yybegin(YYINITIAL);
 }
 <COMMENT> "(*" {
 	commentCount = commentCount + 1;
@@ -140,141 +152,188 @@ Bool = "false" | "true"
 
 <YYINITIAL>"=>" { 
     /*special symbols*/
+	set_curr_lineno(yyline + 1);
     return new Symbol(TokenConstants.DARROW); 
 }
 <YYINITIAL>"(" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.LPAREN);
 }
 <YYINITIAL>")" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.RPAREN);
 }
 <YYINITIAL>"<=" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.LE);
 }
 <YYINITIAL>"<" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.LT);
 }
 <YYINITIAL>"=" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.EQ);
 }
 <YYINITIAL>"{" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.LBRACE);
 }
 <YYINITIAL>"}" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.RBRACE);
 }
 <YYINITIAL>"," {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.COMMA);
 }
 <YYINITIAL>":" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.COLON);
 }
 <YYINITIAL>";" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.SEMI);
 }
 <YYINITIAL>"<-" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.ASSIGN);
 }
 <YYINITIAL>"." {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.DOT);
 }
 <YYINITIAL>"@" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.AT);
 }
 <YYINITIAL>"*" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.MULT);
 }
 <YYINITIAL>"-" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.MINUS);
 }
 <YYINITIAL>"/" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.DIV);
 }
 <YYINITIAL>"+" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.PLUS);
 }
 <YYINITIAL>"~" {
+	set_curr_lineno(yyline + 1);
 	/* not determined */
 	return new Symbol(TokenConstants.NEG);
 }
 <YYINITIAL>"class" {
 	/*the keywords*/
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.CLASS);
 }
 <YYINITIAL>"else" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.ELSE);
 }
 <YYINITIAL>"fi" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.FI);
 }
 <YYINITIAL>"if" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.IF);
 }
 <YYINITIAL>"in" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.IN);
 }
 <YYINITIAL>"inherits" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.INHERITS);
 }
 <YYINITIAL>"isvoid" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.ISVOID);
 }
 <YYINITIAL>"let" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.LET);
 }
 <YYINITIAL>"loop" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.LOOP);
 }
 <YYINITIAL>"pool" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.POOL);
 }
 <YYINITIAL>"then" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.THEN);
 }
 <YYINITIAL>"while" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.WHILE);
 }
 <YYINITIAL>"case" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.CASE);
 }
 <YYINITIAL>"esac" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.ESAC);
 }
 <YYINITIAL>"new" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.NEW);
 }
 <YYINITIAL>"of" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.OF); 
 }
 <YYINITIAL>"not" {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.NOT);
 }
 <YYINITIAL>"\"" {
 	yybegin(YYSTRING);
 }
+<YYSTRING>[^\n\t\f\b\r\"] {
+	string_buf.append(yytext());
+}
+<YYSTRING>\\n {
+	string_buf.append("\n");
+}
 <YYSTRING>"\"" {
 	yybegin(YYINITIAL);
+	set_curr_lineno(yyline + 1);
+	Symbol result = new Symbol(TokenConstants.STR_CONST, AbstractTable.stringtable.addString(string_buf.toString()));
+	string_buf.setLength(0);
+	return result;
 }
 <YYINITIAL>{ObjectId} {
-	Symbol result = new Symbol(TokenConstants.OBJECTID, new IdSymbol(yytext(), yytext().length(), CurrentSymbolEntryIndex));
-    CurrentSymbolEntryIndex += 1;
+	set_curr_lineno(yyline + 1);
+	Symbol result = new Symbol(TokenConstants.OBJECTID, AbstractTable.idtable.addString(yytext()));
 	return result;
 }
 <YYINITIAL>{TypeId} {
-	Symbol result = new Symbol(TokenConstants.TYPEID, new IdSymbol(yytext(), yytext().length(), CurrentSymbolEntryIndex));
-    CurrentSymbolEntryIndex += 1;
+	set_curr_lineno(yyline + 1);
+	Symbol result = new Symbol(TokenConstants.TYPEID, AbstractTable.idtable.addString(yytext()));
 	return result;
 }
 <YYINITIAL>{Integer} {
-	Symbol result = new Symbol(TokenConstants.INT_CONST, new IntSymbol(yytext(), yytext().length(), CurrentSymbolEntryIndex));
-    CurrentSymbolEntryIndex += 1;
+	set_curr_lineno(yyline + 1);
+	Symbol result = new Symbol(TokenConstants.INT_CONST, AbstractTable.idtable.addString(yytext()));
 	return result;
 }
 <YYINITIAL>{Bool} {
+	set_curr_lineno(yyline + 1);
 	return new Symbol(TokenConstants.BOOL_CONST, new Boolean(yytext()));
 }
 .                               { /* This rule should be the very last
                                      in your lexical specification and
                                      will match match everything not
                                      matched by other lexical rules. */
-                                  System.err.println("LEXER BUG - UNMATCHED: " + yytext()); }
+                                  System.err.println("LEXER BUG - UNMATCHED: " + yytext() + " AT LINE " + yyline); }
